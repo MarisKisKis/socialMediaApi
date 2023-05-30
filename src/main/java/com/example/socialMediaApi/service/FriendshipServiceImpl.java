@@ -1,55 +1,67 @@
 package com.example.socialMediaApi.service;
 
-import com.example.socialMediaApi.exception.IllegalArgumentException;
 import com.example.socialMediaApi.exception.NotFoundException;
-import com.example.socialMediaApi.model.FriendshipRequest;
-import com.example.socialMediaApi.model.FriendshipStatus;
+import com.example.socialMediaApi.model.Message;
 import com.example.socialMediaApi.model.User;
-import com.example.socialMediaApi.model.dto.FriendshipRequestDto;
 import com.example.socialMediaApi.repository.FriendshipRepository;
+import com.example.socialMediaApi.repository.MessageRepository;
+import com.example.socialMediaApi.repository.SubscribersRepository;
 import com.example.socialMediaApi.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
 @Slf4j
-public class FriendshipServiceImpl implements FriendshipService {
+public class FriendshipServiceImpl implements FriendshipService{
 
     private final FriendshipRepository friendshipRepository;
+
+    private final SubscribersRepository subscribersRepository;
+
     private final UserRepository userRepository;
 
+    private final MessageRepository messageRepository;
+
     @Autowired
-    public FriendshipServiceImpl(FriendshipRepository friendshipRepository, UserRepository userRepository) {
+    public FriendshipServiceImpl(FriendshipRepository friendshipRepository, SubscribersRepository subscribersRepository, UserRepository userRepository, MessageRepository messageRepository) {
         this.friendshipRepository = friendshipRepository;
+        this.subscribersRepository = subscribersRepository;
         this.userRepository = userRepository;
+        this.messageRepository = messageRepository;
     }
 
     @Override
-    public void createRequest(long userId, long friendId) {
-        User initiator = getUser(userId);
-        User friend = getUser(friendId);
-        FriendshipRequest request = new FriendshipRequest();
-        request.setInitiator(initiator);
-        request.setFriend(friend);
-        request.setStatus(FriendshipStatus.SUBSCRIBER);
-        friendshipRepository.save(request);
+    public void deleteFriend(long userId, long friendId) {
+        checkFriendship(userId, friendId);
+        friendshipRepository.deleteFriendsByFriend1AndFriend2(userId, friendId);
+        try {
+            subscribersRepository.deleteSubscribersBySubscriberId(userId);
+        } catch (NotFoundException e) {
+            e.getMessage("This subscription already doesn't exist");
+        }
     }
 
     @Override
-    public void acceptRequest(long userId, long requestId) {
-        Optional<FriendshipRequest> reqOpt = friendshipRepository.findById(requestId);
-        if (reqOpt.isEmpty()) {
-            throw new NotFoundException("Could not find FriendshipRequest with id = " + requestId);
+    public void sendMessage(long userId, long friendId, String text) {
+        checkFriendship(userId, friendId);
+        Message message = new Message();
+        message.setSender(getUser(userId));
+        message.setReceiver(getUser(friendId));
+        message.setText(text);
+        message.setSent(LocalDateTime.now());
+        messageRepository.save(message);
+    }
+
+    private void checkFriendship(long userId, long friendId) {
+        try {
+            friendshipRepository.getFriendsByFriend1AndFriend2(userId, friendId);
+        } catch (NotFoundException e) {
+            e.getMessage("This friendship already doesn't exist");
         }
-        FriendshipRequest addRequest = reqOpt.get();
-        if (userId != addRequest.getFriend().getId()) {
-            throw new IllegalArgumentException("The request is addressed to the wrong user!");
-        }
-        addRequest.setStatus(FriendshipStatus.FRIEND);
-        friendshipRepository.save(addRequest);
     }
 
     private User getUser(long userId) {
@@ -60,5 +72,3 @@ public class FriendshipServiceImpl implements FriendshipService {
         return userOpt.get();
     }
 }
-
-

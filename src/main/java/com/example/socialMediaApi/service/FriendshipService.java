@@ -1,8 +1,7 @@
 package com.example.socialMediaApi.service;
 
 public interface FriendshipService {
-    void createRequest(long userId, long friendId);
+    void deleteFriend(long userId, long friendId);
 
-    void acceptRequest(long userId, long requestId);
-
+    void sendMessage(long userId, long friendId, String text);
 }
