@@ -29,5 +29,9 @@ public class FriendshipRequest {
 
     @NonNull
     @Enumerated(EnumType.STRING)
-    private FriendshipStatus status;
+    private FriendshipStatus friendStatus;
+
+    @NonNull
+    @Enumerated(EnumType.STRING)
+    private RequestStatus reqStatus;
 }
