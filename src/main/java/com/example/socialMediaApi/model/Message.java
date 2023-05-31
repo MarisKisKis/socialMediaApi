@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "massages")
+@Table(name = "messages")
 public class Message {
 
     @Id
@@ -26,11 +26,11 @@ public class Message {
     private LocalDateTime sent;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "sender_id")
     private User sender;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "receiver_id")
     private User receiver;
 
 }

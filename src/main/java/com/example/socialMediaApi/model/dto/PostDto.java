@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.jackson.Jacksonized;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
 @Builder
@@ -15,4 +17,6 @@ public class PostDto {
     private String text;
     private byte[] image;
     private String imageContentType;
+    private LocalDateTime created;
+    private String author;
 }

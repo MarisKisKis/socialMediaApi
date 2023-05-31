@@ -1,6 +1,7 @@
 package com.example.socialMediaApi.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
@@ -26,10 +27,11 @@ public class User {
     private String name;
 
     @NotBlank
+    @Email
     @Column(name = "email", nullable = false, unique = true)
     private String email;
 
     @NotBlank
-    @Column(name = "password", nullable = false, unique = true)
+    @Column(name = "password", nullable = false)
     private String password;
 }

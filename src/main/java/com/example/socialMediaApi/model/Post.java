@@ -3,6 +3,8 @@ package com.example.socialMediaApi.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Getter
 @Setter
@@ -30,15 +32,19 @@ public class Post {
     @Column(name = "image_content_type")
     private String imageContentType;
 
+    @NonNull
+    @Column(name = "created")
+    private LocalDateTime created;
     @ManyToOne
     @JoinColumn(name = "author_id")
     private User author;
 
-    public Post(String header, String text, byte[] image, String imageContentType, User user) {
+    public Post(String header, String text, byte[] image, String imageContentType, LocalDateTime created, User user) {
         this.header = header;
         this.text = text;
         this.image = image;
         this.imageContentType = imageContentType;
+        this.created = created;
         this.author = user;
     }
 }
